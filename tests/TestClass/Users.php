@@ -5,7 +5,7 @@ namespace Test\TestClass;
 
 use MkOrm\Models\Model;
 
-class User extends Model
+class Users extends Model
 {
     protected $id;
     protected $name;

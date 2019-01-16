@@ -21,17 +21,23 @@ class UserTest extends TestCase
 
     public function testThatWeCanGetFromTable()
     {
-        $user = new \Test\TestClass\User();
 
-//        $user->find();
-
-//        $user->find(9)->delete();
-//        $user->setName('test1');
-//        $user->setPassword('pass1');
-
-//        if (!$result = $user->save()) {
-//            echo 'no';
+        $user = new \Test\TestClass\Users();
+//        for ($i = 0; $i <= 50; $i++) {
+//            $user->setName("test$i");
+//            $user->setPassword("pass$i");
 //        }
-        echo json_encode( $user->find(7)->delete());
+
+//        $user->setName('testtest');
+//        $user->setPassword('tdasdsadasd');
+//        $user->paginate(2);
+        $user->findOneLike(['name' => 'al']);
+
+//        $users = $user->paginate();
+
+//        $user->save();
+//        $users = $user->find([1, 2, 3, 4]);
+        echo json_encode($user->toResource(\Test\TestClass\UserResource::class));
+//        echo var_export($users,true);
     }
 }

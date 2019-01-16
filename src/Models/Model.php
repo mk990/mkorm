@@ -11,35 +11,39 @@ namespace MkOrm\Models;
 
 use MkOrm\Configs\Connection;
 use MkOrm\Utils\Utils;
+use PDO;
 
 class Model
 {
-    private $db;
-
-    public function __construct()
+    public function __toString()
     {
-        $this->db = (new Connection())->connect();
+        return json_encode($this->toArray(), JSON_UNESCAPED_UNICODE);
     }
 
-    public function __destruct()
+    public function find($input = null)
     {
-        $this->db = null;
-    }
+        $db = (new Connection())->connect();
 
-    public function find($id = null)
-    {
-        $class = strrchr(get_called_class(), "\\");
-        $class = str_replace('\\', "", $class);
-        $tableName = Utils::deCamelize($class);
-        $q = $this->db->prepare("DESCRIBE `$tableName`");
+        $tableName = $this->getTableName();
+
+        $q = $db->prepare("DESCRIBE `$tableName`");
         $q->execute();
-        $tableFields = $q->fetchAll(\PDO::FETCH_COLUMN);
+        $tableFields = $q->fetchAll(PDO::FETCH_COLUMN);
 
-        if (empty($id)) {
-            $sql = "SELECT * FROM `$tableName`";
+        if (is_array($input)) {
+            $str = "";
+            $dataStr = "";
+            foreach ($input as $data) {
+                $str .= "?,";
+                $dataStr .= "$data,";
+            }
+            $str = rtrim($str, ',');
+            $dataStr = rtrim($dataStr, ',');
+            $sql = "SELECT * FROM `$tableName` where id IN ($str)";
             try {
-                $stmt = $this->db->query($sql);
-                $results = $stmt->fetchAll(\PDO::FETCH_OBJ);
+                $stmt = $db->prepare($sql);
+                $stmt->execute($input);
+                $results = $stmt->fetchAll(PDO::FETCH_OBJ);
                 $data = [];
 
                 foreach ($results as $result) {
@@ -48,22 +52,47 @@ class Model
                         $setterName = 'set' . ucfirst(Utils::camelize($tableField));
                         $class->$setterName($result->$tableField);
                     }
-
                     $data[] = $class;
                 }
                 return $data;
             } catch (\PDOException $e) {
-                error_log("\n\n >>>>> PDO ERROR >>>>> \n\n" . var_export($e->getMessage(), true) . "\n\n");
+                error_log("\n\n >>>>> SQL LOG: \n" . $this->pdoSqlDebug($sql, [$str => $dataStr]) . "\n <<<<< THE END \n\n");
+                error_log("\n\n >>>>> PDO ERROR: \n" . var_export($e->getMessage(), true) . "\n <<<<< THE END \n\n");
+                return false;
+            }
+        }
+
+        if (empty($input)) {
+            $sql = "SELECT * FROM `$tableName`";
+            try {
+                $stmt = $db->query($sql);
+                $results = $stmt->fetchAll(PDO::FETCH_OBJ);
+                $data = [];
+
+                foreach ($results as $result) {
+                    $class = new $this();
+                    foreach ($tableFields as $tableField) {
+                        $setterName = 'set' . ucfirst(Utils::camelize($tableField));
+                        $class->$setterName($result->$tableField);
+                    }
+                    $data[] = $class;
+                }
+                return $data;
+            } catch (\PDOException $e) {
+                error_log("\n\n >>>>> SQL LOG: \n" . $this->pdoSqlDebug($sql, ['?' => $input]) . "\n <<<<< THE END \n\n");
+                error_log("\n\n >>>>> PDO ERROR: \n" . var_export($e->getMessage(), true) . "\n <<<<< THE END \n\n");
                 return false;
             }
         }
 
         $sql = "SELECT * FROM `$tableName` where id = ?";
+
+
         try {
-            $stmt = $this->db->prepare($sql);
-            $stmt->bindParam(1, $id, \PDO::PARAM_INT);
+            $stmt = $db->prepare($sql);
+            $stmt->bindParam(1, $input, PDO::PARAM_INT);
             $stmt->execute();
-            $result = $stmt->fetch(\PDO::FETCH_OBJ);
+            $result = $stmt->fetch(PDO::FETCH_OBJ);
             if (!$result) {
                 return false;
             }
@@ -74,19 +103,250 @@ class Model
 
             return $this;
         } catch (\PDOException $e) {
-            error_log("\n\n >>>>> PDO ERROR >>>>> \n\n" . var_export($e->getMessage(), true) . "\n\n");
+            error_log("\n\n >>>>> SQL LOG: \n" . $this->pdoSqlDebug($sql, ['?' => $input]) . "\n <<<<< THE END \n\n");
+            error_log("\n\n >>>>> PDO ERROR: \n" . var_export($e->getMessage(), true) . "\n <<<<< THE END \n\n");
+            return false;
+        }
+    }
+
+    public function findBy(array $input = [])
+    {
+        $db = (new Connection())->connect();
+
+        $tableName = $this->getTableName();
+
+        $q = $db->prepare("DESCRIBE `$tableName`");
+        $q->execute();
+        $tableFields = $q->fetchAll(PDO::FETCH_COLUMN);
+
+
+        $str = '';
+        if (!empty($input)) {
+
+            $str = ' WHERE ';
+            foreach ($input as $key => $value) {
+
+                $str .= " $key = :$key AND ";
+
+                $input[':' . $key] = $value;
+                unset($input[$key]);
+            }
+            $str = rtrim($str, 'AND ');
+
+        }
+        $sql = "SELECT * FROM `$tableName`" . $str;
+        try {
+            $stmt = $db->prepare($sql);
+            $stmt->execute($input);
+            $results = $stmt->fetchAll(PDO::FETCH_OBJ);
+
+            $data = [];
+            foreach ($results as $result) {
+                $class = new $this();
+                foreach ($tableFields as $tableField) {
+                    $setterName = 'set' . ucfirst(Utils::camelize($tableField));
+                    $class->$setterName($result->$tableField);
+                }
+                $data[] = $class;
+            }
+            error_log("\n\n >>>>> SQL LOG: \n" . $this->pdoSqlDebug($sql, $input) . "\n <<<<< THE END \n\n");
+            return $data;
+        } catch (\PDOException $e) {
+            error_log("\n\n >>>>> SQL LOG: \n" . $this->pdoSqlDebug($sql, $input) . "\n <<<<< THE END \n\n");
+            error_log("\n\n >>>>> PDO ERROR: \n" . var_export($e->getMessage(), true) . "\n <<<<< THE END \n\n");
+            return false;
+        }
+
+    }
+
+    public function findLike(array $input = [])
+    {
+        $db = (new Connection())->connect();
+
+        $tableName = $this->getTableName();
+
+        $q = $db->prepare("DESCRIBE `$tableName`");
+        $q->execute();
+        $tableFields = $q->fetchAll(PDO::FETCH_COLUMN);
+
+
+        $str = '';
+        if (!empty($input)) {
+
+            $str = ' WHERE ';
+            foreach ($input as $key => $value) {
+
+                $str .= " $key like %:$key% AND ";
+
+                $input[':' . $key] = $value;
+                unset($input[$key]);
+            }
+            $str = rtrim($str, 'AND ');
+
+        }
+        $sql = "SELECT * FROM `$tableName`" . $str;
+        try {
+            $stmt = $db->prepare($sql);
+            $stmt->execute($input);
+            $results = $stmt->fetchAll(PDO::FETCH_OBJ);
+
+            $data = [];
+            foreach ($results as $result) {
+                $class = new $this();
+                foreach ($tableFields as $tableField) {
+                    $setterName = 'set' . ucfirst(Utils::camelize($tableField));
+                    $class->$setterName($result->$tableField);
+                }
+                $data[] = $class;
+            }
+            error_log("\n\n >>>>> SQL LOG: \n" . $this->pdoSqlDebug($sql, $input) . "\n <<<<< THE END \n\n");
+            return $data;
+        } catch (\PDOException $e) {
+            error_log("\n\n >>>>> SQL LOG: \n" . $this->pdoSqlDebug($sql, $input) . "\n <<<<< THE END \n\n");
+            error_log("\n\n >>>>> PDO ERROR: \n" . var_export($e->getMessage(), true) . "\n <<<<< THE END \n\n");
+            return false;
+        }
+
+    }
+
+    public function findOneBy(array $input = [])
+    {
+        $db = (new Connection())->connect();
+
+        $tableName = $this->getTableName();
+
+        $q = $db->prepare("DESCRIBE `$tableName`");
+        $q->execute();
+        $tableFields = $q->fetchAll(PDO::FETCH_COLUMN);
+
+        $str = '';
+        if (!empty($input)) {
+
+            $str = ' WHERE ';
+            foreach ($input as $key => $value) {
+
+                $str .= " $key = :$key AND ";
+
+                $input[':' . $key] = $value;
+                unset($input[$key]);
+            }
+            $str = rtrim($str, 'AND ');
+
+        }
+        $sql = "SELECT * FROM `$tableName`" . $str;
+        try {
+            $stmt = $db->prepare($sql);
+            $stmt->execute($input);
+            $result = $stmt->fetch(PDO::FETCH_OBJ);
+
+            if (!$result) {
+                return false;
+            }
+            foreach ($tableFields as $tableField) {
+                $setterName = 'set' . ucfirst(Utils::camelize($tableField));
+                $this->$setterName($result->$tableField);
+            }
+
+            return $this;
+        } catch (\PDOException $e) {
+            error_log("\n\n >>>>> SQL LOG: \n" . $this->pdoSqlDebug($sql, $input) . "\n <<<<< THE END \n\n");
+            error_log("\n\n >>>>> PDO ERROR: \n" . var_export($e->getMessage(), true) . "\n <<<<< THE END \n\n");
+            return false;
+        }
+
+    }
+
+    public function findOneLike(array $input = [])
+    {
+        $db = (new Connection())->connect();
+
+        $tableName = $this->getTableName();
+
+        $q = $db->prepare("DESCRIBE `$tableName`");
+        $q->execute();
+        $tableFields = $q->fetchAll(PDO::FETCH_COLUMN);
+
+        $str = '';
+        if (!empty($input)) {
+
+            $str = ' WHERE ';
+            foreach ($input as $key => $value) {
+
+                $str .= " $key LIKE '%:$key%' AND ";
+
+                $input[':' . $key] = $value;
+                unset($input[$key]);
+            }
+            $str = rtrim($str, 'AND ');
+
+        }
+        $sql = "SELECT * FROM `$tableName`" . $str;
+        try {
+            $stmt = $db->prepare($sql);
+            $stmt->execute($input);
+            $result = $stmt->fetch(PDO::FETCH_OBJ);
+
+            error_log(var_export($result, true));
+
+            if (!$result) {
+                return false;
+            }
+            foreach ($tableFields as $tableField) {
+                $setterName = 'set' . ucfirst(Utils::camelize($tableField));
+                $this->$setterName($result->$tableField);
+            }
+            return $this;
+        } catch (\PDOException $e) {
+            error_log("\n\n >>>>> SQL LOG: \n" . $this->pdoSqlDebug($sql, $input) . "\n <<<<< THE END \n\n");
+            error_log("\n\n >>>>> PDO ERROR: \n" . var_export($e->getMessage(), true) . "\n <<<<< THE END \n\n");
+            return false;
+        }
+
+    }
+
+    public function count(array $input = [])
+    {
+        $db = (new Connection())->connect();
+
+        $tableName = $this->getTableName();
+
+        $str = '';
+        if (!empty($input)) {
+
+            $str = ' WHERE ';
+            foreach ($input as $key => $value) {
+
+                $str .= " $key = :$key AND ";
+
+                $input[':' . $key] = $value;
+                unset($input[$key]);
+            }
+            $str = rtrim($str, 'AND ');
+
+        }
+
+        $sql = "SELECT COUNT(*) AS cnt FROM `$tableName`" . $str;
+        try {
+            $stmt = $db->prepare($sql);
+            $stmt->execute($input);
+            $result = $stmt->fetch(PDO::FETCH_OBJ);
+            return $result->cnt;
+        } catch (\PDOException $e) {
+            error_log("\n\n >>>>> SQL LOG: \n" . $this->pdoSqlDebug($sql, $input) . "\n <<<<< THE END \n\n");
+            error_log("\n\n >>>>> PDO ERROR: \n" . var_export($e->getMessage(), true) . "\n <<<<< THE END \n\n");
             return false;
         }
     }
 
     public function save()
     {
-        $class = strrchr(get_called_class(), "\\");
-        $class = str_replace('\\', "", $class);
-        $tableName = Utils::deCamelize($class);
-        $q = $this->db->prepare("DESCRIBE `$tableName`");
+        $db = (new Connection())->connect();
+
+        $tableName = $this->getTableName();
+
+        $q = $db->prepare("DESCRIBE `$tableName`");
         $q->execute();
-        $tableFields = $q->fetchAll(\PDO::FETCH_COLUMN);
+        $tableFields = $q->fetchAll(PDO::FETCH_COLUMN);
 
         $promoters = '';
         $values = '';
@@ -114,17 +374,16 @@ class Model
         if (empty($this->getId())) {
             try {
                 $sql = "INSERT INTO `$tableName` ( $promoters ) VALUES ( " . $values . " )";
-                $stmt = $this->db->prepare($sql);
-//                foreach ($bindings as $key => $value) {
-//                    $stmt->bindParam($key, $value, \PDO::PARAM_STR);
-//                }
+                $stmt = $db->prepare($sql);
                 $result = $stmt->execute($bindings);
                 if (!$result) {
                     return false;
                 }
-                return $result;
+                error_log("\n\n >>>>> SQL LOG: \n" . $this->pdoSqlDebug($sql, $bindings) . "\n <<<<< THE END \n\n");
+                return $this->find($db->lastInsertId());
             } catch (\PDOException $e) {
-                error_log("\n\n >>>>> PDO ERROR >>>>> \n\n" . var_export($e->getMessage(), true) . "\n\n");
+                error_log("\n\n >>>>> SQL LOG: \n" . $this->pdoSqlDebug($sql, $bindings) . "\n <<<<< THE END \n\n");
+                error_log("\n\n >>>>> PDO ERROR: \n" . var_export($e->getMessage(), true) . "\n <<<<< THE END \n\n");
                 return false;
             }
 
@@ -133,21 +392,16 @@ class Model
             $updateParameters = rtrim($updateParameters, ',');
 
             $sql = "UPDATE `$tableName` SET $updateParameters WHERE id = :id";
-            error_log($sql);
-            error_log(json_encode($bindings));
             try {
-                $stmt = $this->db->prepare($sql);
-//                foreach ($bindings as $key => $value) {
-//                    error_log($key .' '. $value);
-//                    $stmt->bindParam($key, $value, \PDO::PARAM_STR);
-//                }
+                $stmt = $db->prepare($sql);
                 $result = $stmt->execute($bindings);
                 if (!$result) {
                     return false;
                 }
-                return $result;
+                return $this->find($this->getId());
             } catch (\PDOException $e) {
-                error_log("\n\n >>>>> PDO ERROR >>>>> \n\n" . var_export($e->getMessage(), true) . "\n\n");
+                error_log("\n\n >>>>> SQL LOG: \n" . $this->pdoSqlDebug($sql, $bindings) . "\n <<<<< THE END \n\n");
+                error_log("\n\n >>>>> PDO ERROR: \n" . var_export($e->getMessage(), true) . "\n <<<<< THE END \n\n");
                 return false;
             }
         }
@@ -155,9 +409,9 @@ class Model
 
     public function delete()
     {
-        $class = strrchr(get_called_class(), "\\");
-        $class = str_replace('\\', "", $class);
-        $tableName = Utils::deCamelize($class);
+        $db = (new Connection())->connect();
+
+        $tableName = $this->getTableName();
 
         // if empty id
         $id = $this->getId();
@@ -166,28 +420,104 @@ class Model
         }
         $sql = "DELETE FROM `$tableName` WHERE id = ?";
         try {
-            $stmt = $this->db->prepare($sql);
-            $stmt->bindParam(1, $id, \PDO::PARAM_INT);
+            $stmt = $db->prepare($sql);
+            $stmt->bindParam(1, $id, PDO::PARAM_INT);
             $result = $stmt->execute();
             if (!$result) {
                 return false;
             }
             return true;
         } catch (\PDOException $e) {
-            error_log("\n\n >>>>> PDO ERROR >>>>> \n\n" . var_export($e->getMessage(), true) . "\n\n");
+            error_log("\n\n >>>>> SQL LOG: \n" . $this->pdoSqlDebug($sql, ['?', $id]) . "\n <<<<< THE END \n\n");
+            error_log("\n\n >>>>> PDO ERROR: \n" . var_export($e->getMessage(), true) . "\n <<<<< THE END \n\n");
             return false;
         }
     }
+
+    public function paginate(int $page = 1, int $limit = 20)
+    {
+        $db = (new Connection())->connect();
+        $tableName = $this->getTableName();
+        $q = $db->prepare("DESCRIBE `$tableName`");
+        $q->execute();
+        $tableFields = $q->fetchAll(PDO::FETCH_COLUMN);
+
+        $sql = "SELECT * FROM `$tableName` LIMIT :start, :limit";
+
+        if ($page < 1 || !is_numeric($page))
+            $page = 1;
+        $first = (($page - 1) * $limit);
+
+        try {
+            $stmt = $db->prepare($sql);
+            $stmt->bindParam(":start", $first, PDO::PARAM_INT);
+            $stmt->bindParam(":limit", $limit, PDO::PARAM_INT);
+            $stmt->execute();
+            $results = $stmt->fetchAll(PDO::FETCH_OBJ);
+            $data = [];
+            foreach ($results as $result) {
+                $class = new $this();
+                foreach ($tableFields as $tableField) {
+                    $setterName = 'set' . ucfirst(Utils::camelize($tableField));
+                    $class->$setterName($result->$tableField);
+                }
+                $data[] = $class;
+            }
+            $count = $this->count();
+            $lastPage = (int)ceil($count / $limit);
+            return
+                [
+                    'data' => $data,
+                    'info' => [
+                        'self'         => $page,
+                        'first'        => 1,
+                        'last'         => $lastPage,
+                        'prev'         => $page - 1 < 1 ? null : $page - 1,
+                        'next'         => $page + 1 > $lastPage ? null : $page + 1,
+                        'current_page' => $page,
+                        'from'         => (($page - 1) * $limit) + 1,
+                        'last_page'    => $lastPage,
+                        "per_page"     => $limit,
+                        "to"           => (($page - 1) * $limit) + @count($data),
+                        "total"        => $count,
+                    ]
+                ];
+        } catch (\PDOException $e) {
+            error_log("\n\n >>>>> SQL LOG: \n" . $this->pdoSqlDebug($sql, ['":start' => $first, ":limit" => $limit]) . "\n <<<<< THE END \n\n");
+            error_log("\n\n >>>>> PDO ERROR: \n" . var_export($e->getMessage(), true) . "\n <<<<< THE END \n\n");
+            return false;
+        }
+
+    }
+
+    public function toResource($resource)
+    {
+        return new $resource($this);
+    }
+
 
     public function toArray()
     {
         return $this->processArray(get_object_vars($this));
     }
 
+    public function toJSON()
+    {
+        return json_encode($this->toArray(), JSON_UNESCAPED_UNICODE);
+    }
+
+    private function pdoSqlDebug($sql, $placeholders)
+    {
+        foreach ($placeholders as $k => $v) {
+            $sql = str_replace($k, $v, $sql);
+        }
+        return $sql;
+    }
+
     private function processArray($array)
     {
         foreach ($array as $key => $value) {
-            if (is_object($value) && $value instanceof BaseModel) {
+            if (is_object($value) && $value instanceof Model) {
                 $array[$key] = $value->toArray();
             }
             if (is_array($value)) {
@@ -199,49 +529,11 @@ class Model
         return $array;
     }
 
-    public function __toString()
+    private function getTableName()
     {
-        return json_encode($this->toArray(), JSON_UNESCAPED_UNICODE);
-    }
-
-    public function toJSON()
-    {
-        return json_encode($this->toArray(), JSON_UNESCAPED_UNICODE);
-    }
-
-    public function toJsonApi(array $blackList = [])
-    {
-        $class = strtolower(get_called_class());
-        $class = strrchr($class, "\\");
+        $class = strrchr(get_called_class(), "\\");
         $class = str_replace('\\', "", $class);
-        $class = rtrim($class, "s");
-
-        /**
-         * @var \DateTime $createdAt
-         */
-        $data = get_object_vars($this);
-        $attributes = [];
-        foreach ($data as $key => $value) {
-            $blackList = array_merge(['id'], $blackList);
-            if (!in_array($key, $blackList)) {
-
-                if ($this->$key instanceof \DateTime)
-                    $value = $this->$key->format('Y-m-d H:i:s');
-
-                if (!empty($value))
-                    $attributes[$this->fromCamelCase($key)] = $value;
-            }
-        }
-
-        return [
-            "data" => [
-                "type"       => $class,
-                "id"         => $this->getId(),
-                "attributes" => $attributes,
-                "links"      => [
-                    "self" => env('APP_URL') . "/$class/" . $this->getId()
-                ]
-            ]
-        ];
+        return Utils::deCamelize($class);
     }
+
 }
