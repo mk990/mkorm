@@ -467,7 +467,10 @@ class Model
             $stmt = $db->prepare($sql);
             $stmt->bindParam(":start", $first, PDO::PARAM_INT);
             $stmt->bindParam(":limit", $limit, PDO::PARAM_INT);
-            $stmt->execute($options);
+            if (empty($str))
+                $stmt->execute();
+            else
+                $stmt->execute($options);
             $results = $stmt->fetchAll(PDO::FETCH_OBJ);
             $data = [];
             foreach ($results as $result) {

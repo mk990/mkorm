@@ -12,17 +12,11 @@ use PDO;
 
 class Connection
 {
-    private $db_host = 'localhost';
-    private $db_port = '3306';
-    private $db_name = 'mytestdb';
-    private $db_user = 'root';
-    private $db_pass = '';
-
     public function connect($options = null)
     {
-        $dbConnection = new PDO('mysql:host=' . $this->db_host . ';port=' . $this->db_port . ';dbname=' . $this->db_name,
-            $this->db_user,
-            $this->db_pass,
+        $dbConnection = new PDO('mysql:host=' . getenv('DB_HOST') . ';port=' . getenv('DB_PORT') . ';dbname=' . getenv('DB_DATABASE') . ';charset=' . getenv('DB_CHARSET'),
+            getenv('DB_USERNAME'),
+            getenv('DB_PASSWORD'),
             $options);
         $dbConnection->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         return $dbConnection;

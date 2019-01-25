@@ -21,6 +21,7 @@ class UserTest extends TestCase
 
     public function testThatWeCanGetFromTable()
     {
+        (\Dotenv\Dotenv::create(__DIR__ . '/../../'))->overload();
 
         $user = new MkOrm\Test\TestClass\Users();
 //        for ($i = 0; $i <= 50; $i++) {
