@@ -15,7 +15,7 @@
     },
     "autoload-dev": {
         "psr-4": {
-            "Test\\": "tests/"
+            "MkOrm\\Test\\": "tests/"
         }
     },
     "require": {
@@ -26,5 +26,6 @@
     },
     "require-dev": {
         "phpunit/phpunit": "^7.5"
-    }
+    },
+    "minimum-stability": "dev"
 }

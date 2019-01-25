@@ -22,7 +22,7 @@ class UserTest extends TestCase
     public function testThatWeCanGetFromTable()
     {
 
-        $user = new \Test\TestClass\Users();
+        $user = new MkOrm\Test\TestClass\Users();
 //        for ($i = 0; $i <= 50; $i++) {
 //            $user->setName("test$i");
 //            $user->setPassword("pass$i");
@@ -37,7 +37,7 @@ class UserTest extends TestCase
 
 //        $user->save();
 //        $users = $user->find([1, 2, 3, 4]);
-        echo json_encode($user->toResource(\Test\TestClass\UserResource::class));
+        echo json_encode($user->toResource(MkOrm\Test\TestClass\UserResource::class));
 //        echo var_export($users,true);
     }
 }

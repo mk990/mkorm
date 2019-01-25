@@ -434,7 +434,7 @@ class Model
         }
     }
 
-    public function paginate(int $page = 1, int $limit = 20)
+    public function paginate(int $page = 1, int $limit = 20, $options = [])
     {
         $db = (new Connection())->connect();
         $tableName = $this->getTableName();
@@ -442,7 +442,22 @@ class Model
         $q->execute();
         $tableFields = $q->fetchAll(PDO::FETCH_COLUMN);
 
-        $sql = "SELECT * FROM `$tableName` LIMIT :start, :limit";
+        $str = '';
+        if (!empty($options)) {
+
+            $str = ' WHERE ';
+            foreach ($options as $key => $value) {
+
+                $str .= " $key = :$key AND ";
+
+                $options[':' . $key] = $value;
+                unset($options[$key]);
+            }
+            $str = rtrim($str, 'AND ');
+        }
+
+
+        $sql = "SELECT * FROM `$tableName` $str LIMIT :start, :limit";
 
         if ($page < 1 || !is_numeric($page))
             $page = 1;
@@ -452,7 +467,7 @@ class Model
             $stmt = $db->prepare($sql);
             $stmt->bindParam(":start", $first, PDO::PARAM_INT);
             $stmt->bindParam(":limit", $limit, PDO::PARAM_INT);
-            $stmt->execute();
+            $stmt->execute($options);
             $results = $stmt->fetchAll(PDO::FETCH_OBJ);
             $data = [];
             foreach ($results as $result) {
@@ -463,7 +478,7 @@ class Model
                 }
                 $data[] = $class;
             }
-            $count = $this->count();
+            $count = $this->count($options);
             $lastPage = (int)ceil($count / $limit);
             return
                 [

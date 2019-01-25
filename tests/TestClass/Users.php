@@ -1,6 +1,6 @@
 <?php
 
-namespace Test\TestClass;
+namespace MkOrm\Test\TestClass;
 
 
 use MkOrm\Models\Model;
