@@ -1,7 +1,7 @@
 {
     "name": "mk990/mkorm",
     "description": "simple fast safe orm",
-    "license": "GPL-v3",
+    "license": "LGPL-3.0-or-later",
     "authors": [
         {
             "name": "mohammad hemmati",
