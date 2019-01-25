@@ -4,8 +4,93 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "c2a52fbdd0cdde687903d78d194fd869",
+    "content-hash": "7a23c253ed54a96526cd252c0f82c3ee",
     "packages": [
+        {
+            "name": "joshcam/mysqli-database-class",
+            "version": "v2.9.2",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/ThingEngineer/PHP-MySQLi-Database-Class.git",
+                "reference": "e122f8e0c22165092b81578ecd618842e9e01d64"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/ThingEngineer/PHP-MySQLi-Database-Class/zipball/e122f8e0c22165092b81578ecd618842e9e01d64",
+                "reference": "e122f8e0c22165092b81578ecd618842e9e01d64",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.3.0"
+            },
+            "type": "library",
+            "autoload": {
+                "files": [
+                    "MysqliDb.php",
+                    "dbObject.php"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "GPL-3.0-or-later"
+            ],
+            "authors": [
+                {
+                    "name": "Josh Campbell",
+                    "email": "josh.lee.campbell@gmail.com",
+                    "homepage": "https://github.com/joshcam",
+                    "role": "Developer"
+                },
+                {
+                    "name": "Alexander V. Butenko",
+                    "email": "a.butenka@gmail.com",
+                    "homepage": "http://smarttechdo.com",
+                    "role": "Developer"
+                }
+            ],
+            "description": "PHP MySQL Wrapper and object mapper which utilizes MySQLi and prepared statements",
+            "time": "2018-02-08T05:07:59+00:00"
+        },
+        {
+            "name": "nevercom/iripg",
+            "version": "v1.7",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/Nevercom/php-ipg-ir.git",
+                "reference": "76ec078170008a878e64b6059802e7fb40612dcd"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/Nevercom/php-ipg-ir/zipball/76ec078170008a878e64b6059802e7fb40612dcd",
+                "reference": "76ec078170008a878e64b6059802e7fb40612dcd",
+                "shasum": ""
+            },
+            "require": {
+                "joshcam/mysqli-database-class": "^2.9",
+                "php": ">=5.3.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "IPG\\": "IPG/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Mohammad Azam Rahmanpour (nevercom)",
+                    "email": "nevercom@gmail.com",
+                    "homepage": "http://nevercom.blog.ir",
+                    "role": "Developer"
+                }
+            ],
+            "description": "An IPG (Internet Payment Gateway) manager to work with Iranian Banking System.",
+            "homepage": "https://github.com/Nevercom/php-ipg-ir",
+            "time": "2018-05-07T11:00:02+00:00"
+        },
         {
             "name": "phpoption/phpoption",
             "version": "1.5.0",
@@ -1583,7 +1668,9 @@
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {
-        "php": ">=7.2"
+        "php": ">=7.2",
+        "ext-pdo": "*",
+        "ext-json": "*"
     },
     "platform-dev": []
 }
