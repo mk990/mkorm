@@ -149,7 +149,6 @@ class Model
                 }
                 $data[] = $class;
             }
-            error_log("\n\n >>>>> SQL LOG: \n" . $this->pdoSqlDebug($sql, $input) . "\n <<<<< THE END \n\n");
             return $data;
         } catch (\PDOException $e) {
             error_log("\n\n >>>>> SQL LOG: \n" . $this->pdoSqlDebug($sql, $input) . "\n <<<<< THE END \n\n");
@@ -503,6 +502,37 @@ class Model
             return false;
         }
 
+    }
+
+    public function hasOne($model, $options = [])
+    {
+        $tableName = (new $model())->getTableName();
+
+        $name = 'get' . ucfirst(rtrim($tableName, 's')) . 'Id';
+
+        $options = array_merge($options, ['id' => $this->$name()]);
+        return (new $model())->findOneBy($options);
+    }
+
+    public function hasMany($model, $options = [])
+    {
+        $tableName = $this->getTableName();
+
+        $name = rtrim($tableName, 's') . '_id';
+
+        $options = array_merge($options, [$name => $this->getId()]);
+
+        return (new $model())->findBy($options);
+    }
+
+    public function hasManyPaginate($model, int $page = 1, int $limit = 20, $options = [])
+    {
+        $tableName = $this->getTableName();
+
+        $name = rtrim($tableName, 's') . '_id';
+
+        $options = array_merge($options, [$name => $this->getId()]);
+        return (new $model())->paginate($page, $limit, $options);
     }
 
     public function toResource($resource)
