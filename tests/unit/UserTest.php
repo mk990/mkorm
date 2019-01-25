@@ -32,13 +32,13 @@ class UserTest extends TestCase
 //        $user->setName('testtest');
 //        $user->setPassword('tdasdsadasd');
 //        $user->paginate(2);
-        $user->findOneLike(['name' => 'al']);
+//        $users = $user->findLike(['name' => 'al']);
 
-//        $users = $user->paginate();
+//        $users = $user->paginate(1, 20, ['name' => 'ali']);
 
 //        $user->save();
-//        $users = $user->find([1, 2, 3, 4]);
-        echo json_encode($user->toResource(MkOrm\Test\TestClass\UserResource::class));
-//        echo var_export($users,true);
+        $users = $user->findOneLike(['name'=>'al']);
+//        echo json_encode(new \MkOrm\Test\TestClass\UsersResource($users));
+        echo var_export($users, true);
     }
 }

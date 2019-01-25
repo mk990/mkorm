@@ -19,8 +19,10 @@ class UsersResource extends Resource
         }
 
         foreach ($results as $result) {
-            $object = new UserResource($result);
-            $this->data[] = $object->data;
+            if($result instanceof Users){
+                $object = new UserResource($result);
+                $this->data[] = $object->data;
+            }
         }
     }
 }

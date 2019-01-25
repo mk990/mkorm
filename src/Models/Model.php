@@ -176,9 +176,10 @@ class Model
             $str = ' WHERE ';
             foreach ($input as $key => $value) {
 
-                $str .= " $key like %:$key% AND ";
+                $str .= " $key like :$key AND ";
 
-                $input[':' . $key] = $value;
+                $input[':' . $key] = "%$value%";
+
                 unset($input[$key]);
             }
             $str = rtrim($str, 'AND ');
@@ -233,7 +234,7 @@ class Model
             $str = rtrim($str, 'AND ');
 
         }
-        $sql = "SELECT * FROM `$tableName`" . $str;
+        $sql = "SELECT * FROM `$tableName` $str LIMIT 1";
         try {
             $stmt = $db->prepare($sql);
             $stmt->execute($input);
@@ -272,21 +273,19 @@ class Model
             $str = ' WHERE ';
             foreach ($input as $key => $value) {
 
-                $str .= " $key LIKE '%:$key%' AND ";
+                $str .= " $key LIKE :$key AND ";
 
-                $input[':' . $key] = $value;
+                $input[':' . $key] = "%$value%";
                 unset($input[$key]);
             }
             $str = rtrim($str, 'AND ');
 
         }
-        $sql = "SELECT * FROM `$tableName`" . $str;
+        $sql = "SELECT * FROM `$tableName` $str LIMIT 1";
         try {
             $stmt = $db->prepare($sql);
             $stmt->execute($input);
             $result = $stmt->fetch(PDO::FETCH_OBJ);
-
-            error_log(var_export($result, true));
 
             if (!$result) {
                 return false;
@@ -442,6 +441,8 @@ class Model
         $q->execute();
         $tableFields = $q->fetchAll(PDO::FETCH_COLUMN);
 
+        $count = $this->count($options);
+
         $str = '';
         if (!empty($options)) {
 
@@ -463,14 +464,11 @@ class Model
             $page = 1;
         $first = (($page - 1) * $limit);
 
+        $bind = array_merge($options, [":start" => $first, ":limit" => $limit]);
         try {
+            $db->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
             $stmt = $db->prepare($sql);
-            $stmt->bindParam(":start", $first, PDO::PARAM_INT);
-            $stmt->bindParam(":limit", $limit, PDO::PARAM_INT);
-            if (empty($str))
-                $stmt->execute();
-            else
-                $stmt->execute($options);
+            $stmt->execute($bind);
             $results = $stmt->fetchAll(PDO::FETCH_OBJ);
             $data = [];
             foreach ($results as $result) {
@@ -481,7 +479,6 @@ class Model
                 }
                 $data[] = $class;
             }
-            $count = $this->count($options);
             $lastPage = (int)ceil($count / $limit);
             return
                 [
@@ -501,7 +498,7 @@ class Model
                     ]
                 ];
         } catch (\PDOException $e) {
-            error_log("\n\n >>>>> SQL LOG: \n" . $this->pdoSqlDebug($sql, ['":start' => $first, ":limit" => $limit]) . "\n <<<<< THE END \n\n");
+            error_log("\n\n >>>>> SQL LOG: \n" . $this->pdoSqlDebug($sql, $bind) . "\n <<<<< THE END \n\n");
             error_log("\n\n >>>>> PDO ERROR: \n" . var_export($e->getMessage(), true) . "\n <<<<< THE END \n\n");
             return false;
         }
