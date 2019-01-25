@@ -1,7 +1,7 @@
 {
     "name": "mk990/mkorm",
     "description": "simple fast safe orm",
-    "license": "GPT-V3",
+    "license": "GPL-v3",
     "authors": [
         {
             "name": "mohammad hemmati",
@@ -26,6 +26,5 @@
     },
     "require-dev": {
         "phpunit/phpunit": "^7.5"
-    },
-    "minimum-stability": "dev"
+    }
 }
