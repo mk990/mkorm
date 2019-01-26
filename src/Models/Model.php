@@ -20,6 +20,38 @@ class Model
         return json_encode($this->toArray(), JSON_UNESCAPED_UNICODE);
     }
 
+    public function all($orderBy = 'ASC')
+    {
+        $db = (new Connection())->connect();
+
+        $tableName = $this->getTableName();
+
+        $q = $db->prepare("DESCRIBE `$tableName`");
+        $q->execute();
+        $tableFields = $q->fetchAll(PDO::FETCH_COLUMN);
+
+        $sql = "SELECT * FROM `$tableName` ORDER BY id $orderBy";
+        try {
+            $stmt = $db->query($sql);
+            $results = $stmt->fetchAll(PDO::FETCH_OBJ);
+            $data = [];
+
+            foreach ($results as $result) {
+                $class = new $this();
+                foreach ($tableFields as $tableField) {
+                    $setterName = 'set' . ucfirst(Utils::camelize($tableField));
+                    $class->$setterName($result->$tableField);
+                }
+                $data[] = $class;
+            }
+            return $data;
+        } catch (\PDOException $e) {
+            error_log("\n\n >>>>> SQL LOG: \n" . $this->pdoSqlDebug($sql, []) . "\n <<<<< THE END \n\n");
+            error_log("\n\n >>>>> PDO ERROR: \n" . var_export($e->getMessage(), true) . "\n <<<<< THE END \n\n");
+            return false;
+        }
+    }
+
     public function find($input = null)
     {
         $db = (new Connection())->connect();
@@ -63,30 +95,10 @@ class Model
         }
 
         if (empty($input)) {
-            $sql = "SELECT * FROM `$tableName`";
-            try {
-                $stmt = $db->query($sql);
-                $results = $stmt->fetchAll(PDO::FETCH_OBJ);
-                $data = [];
-
-                foreach ($results as $result) {
-                    $class = new $this();
-                    foreach ($tableFields as $tableField) {
-                        $setterName = 'set' . ucfirst(Utils::camelize($tableField));
-                        $class->$setterName($result->$tableField);
-                    }
-                    $data[] = $class;
-                }
-                return $data;
-            } catch (\PDOException $e) {
-                error_log("\n\n >>>>> SQL LOG: \n" . $this->pdoSqlDebug($sql, ['?' => $input]) . "\n <<<<< THE END \n\n");
-                error_log("\n\n >>>>> PDO ERROR: \n" . var_export($e->getMessage(), true) . "\n <<<<< THE END \n\n");
-                return false;
-            }
+            $this->all();
         }
 
         $sql = "SELECT * FROM `$tableName` where id = ?";
-
 
         try {
             $stmt = $db->prepare($sql);
@@ -329,6 +341,74 @@ class Model
             $stmt->execute($input);
             $result = $stmt->fetch(PDO::FETCH_OBJ);
             return $result->cnt;
+        } catch (\PDOException $e) {
+            error_log("\n\n >>>>> SQL LOG: \n" . $this->pdoSqlDebug($sql, $input) . "\n <<<<< THE END \n\n");
+            error_log("\n\n >>>>> PDO ERROR: \n" . var_export($e->getMessage(), true) . "\n <<<<< THE END \n\n");
+            return false;
+        }
+    }
+
+    public function sum($column,array $input = [])
+    {
+        $db = (new Connection())->connect();
+
+        $tableName = $this->getTableName();
+
+        $str = '';
+        if (!empty($input)) {
+
+            $str = ' WHERE ';
+            foreach ($input as $key => $value) {
+
+                $str .= " $key = :$key AND ";
+
+                $input[':' . $key] = $value;
+                unset($input[$key]);
+            }
+            $str = rtrim($str, 'AND ');
+
+        }
+
+        $sql = "SELECT SUM($column) AS sum_data FROM `$tableName`" . $str;
+        try {
+            $stmt = $db->prepare($sql);
+            $stmt->execute($input);
+            $result = $stmt->fetch(PDO::FETCH_OBJ);
+            return $result->sum_data;
+        } catch (\PDOException $e) {
+            error_log("\n\n >>>>> SQL LOG: \n" . $this->pdoSqlDebug($sql, $input) . "\n <<<<< THE END \n\n");
+            error_log("\n\n >>>>> PDO ERROR: \n" . var_export($e->getMessage(), true) . "\n <<<<< THE END \n\n");
+            return false;
+        }
+    }
+
+    public function avg($column,array $input = [])
+    {
+        $db = (new Connection())->connect();
+
+        $tableName = $this->getTableName();
+
+        $str = '';
+        if (!empty($input)) {
+
+            $str = ' WHERE ';
+            foreach ($input as $key => $value) {
+
+                $str .= " $key = :$key AND ";
+
+                $input[':' . $key] = $value;
+                unset($input[$key]);
+            }
+            $str = rtrim($str, 'AND ');
+
+        }
+
+        $sql = "SELECT AVG($column) AS avg_data FROM `$tableName`" . $str;
+        try {
+            $stmt = $db->prepare($sql);
+            $stmt->execute($input);
+            $result = $stmt->fetch(PDO::FETCH_OBJ);
+            return $result->avg_data;
         } catch (\PDOException $e) {
             error_log("\n\n >>>>> SQL LOG: \n" . $this->pdoSqlDebug($sql, $input) . "\n <<<<< THE END \n\n");
             error_log("\n\n >>>>> PDO ERROR: \n" . var_export($e->getMessage(), true) . "\n <<<<< THE END \n\n");
