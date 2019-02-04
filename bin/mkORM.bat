@@ -1,4 +1,4 @@
 @echo off
 
 set MKORMPATH=%~dp0
-php %MKORMPATH%mkORM.php %*
+php %MKORMPATH%mkORM %*
