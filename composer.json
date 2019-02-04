@@ -2,6 +2,9 @@
     "name": "mk990/mkorm",
     "description": "simple fast safe orm",
     "license": "LGPL-3.0-or-later",
+    "bin": [
+        "bin/mkORM"
+    ],
     "authors": [
         {
             "name": "mohammad hemmati",
