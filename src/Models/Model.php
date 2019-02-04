@@ -63,6 +63,9 @@ class Model
         $tableFields = $q->fetchAll(PDO::FETCH_COLUMN);
 
         if (is_array($input)) {
+            $input = array_unique($input);
+            sort($input);
+
             $str = "";
             $dataStr = "";
             foreach ($input as $data) {
@@ -348,7 +351,7 @@ class Model
         }
     }
 
-    public function sum($column,array $input = [])
+    public function sum($column, array $input = [])
     {
         $db = (new Connection())->connect();
 
@@ -382,7 +385,7 @@ class Model
         }
     }
 
-    public function avg($column,array $input = [])
+    public function avg($column, array $input = [])
     {
         $db = (new Connection())->connect();
 
