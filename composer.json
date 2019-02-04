@@ -5,6 +5,9 @@
     "bin": [
         "bin/mkORM"
     ],
+    "config": {
+        "bin-dir": "bin"
+    },
     "authors": [
         {
             "name": "mohammad hemmati",
