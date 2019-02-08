@@ -32,6 +32,8 @@ class MakeController extends MakeModel
             mkdir('src/Controllers',0755,true);
         }
         $className = ucfirst($tableName);
+        $className = rtrim($className,'s');
+
         $myFile = fopen("src/Controllers/{$className}Controller.php", "w") or die("Unable to open file!");
         fwrite($myFile, $this->controllerMaker($tableName, $tableFields));
         fclose($myFile);
@@ -41,6 +43,7 @@ class MakeController extends MakeModel
     public function controllerMaker($tableName, $tableFields)
     {
         $className = ucfirst($tableName);
+        $className = rtrim($className,'s');
         $date = date('Y-m-d H:i:s');
         $controller = "<?php
 /**
