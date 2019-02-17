@@ -1,10 +1,11 @@
 #!/usr/bin/env php
 <?php
 
-require_once __DIR__ . '/../vendor/autoload.php';
-(\Dotenv\Dotenv::create(__DIR__ . '/../'))->overload();
-//require_once __DIR__ . '/../../../autoload.php';
-//(\Dotenv\Dotenv::create(__DIR__ . '/../../../../'))->overload();
+//require_once __DIR__ . '/../vendor/autoload.php';
+//(\Dotenv\Dotenv::create(__DIR__ . '/../'))->overload();
+
+require_once 'vendor/autoload.php';
+(\Dotenv\Dotenv::create('.'))->overload();
 
 use Symfony\Component\Console\Application;
 
