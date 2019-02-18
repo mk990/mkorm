@@ -35,6 +35,8 @@ class MakeAllModel extends MakeModel
             $tableFields = $q->fetchAll(PDO::FETCH_ASSOC);
 
             $className = ucfirst($tableName);
+            if(file_exists("src/Models/$className.php"))
+                continue;
             $myFile = fopen("src/Models/$className.php", "w") or die("Unable to open file!");
             fwrite($myFile, $this->modelMaker($tableName, $tableFields));
             fclose($myFile);

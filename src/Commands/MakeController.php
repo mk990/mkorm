@@ -33,7 +33,10 @@ class MakeController extends MakeModel
         }
         $className = ucfirst($tableName);
         $className = rtrim($className,'s');
-
+        if (file_exists("src/Controllers/{$className}Controller.php")) {
+            $output->writeln('file exists');
+            return;
+        }
         $myFile = fopen("src/Controllers/{$className}Controller.php", "w") or die("Unable to open file!");
         fwrite($myFile, $this->controllerMaker($tableName, $tableFields));
         fclose($myFile);
@@ -51,7 +54,7 @@ class MakeController extends MakeModel
  * DateTime: $date
  */
 
-namespace App\controllers;
+namespace App\Controllers;
 
 use Slim\Http\Request;
 use Slim\Http\Response;

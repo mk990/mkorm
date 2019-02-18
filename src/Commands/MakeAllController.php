@@ -37,6 +37,8 @@ class MakeAllController extends MakeController
 
             $className = ucfirst($tableName);
             $className = rtrim($className,'s');
+            if(file_exists("src/Controllers/{$className}Controller.php"))
+                continue;
             $myFile = fopen("src/Controllers/{$className}Controller.php", "w") or die("Unable to open file!");
             fwrite($myFile, $this->controllerMaker($tableName, $tableFields));
             fclose($myFile);

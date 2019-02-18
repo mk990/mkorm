@@ -30,6 +30,10 @@ class MakeModel extends Command
         $tableFields = $q->fetchAll(PDO::FETCH_ASSOC);
 
         $className = ucfirst($tableName);
+        if (file_exists("src/Models/$className.php")) {
+            $output->writeln('file exists');
+            return;
+        }
         $myFile = fopen("src/Models/$className.php", "w") or die("Unable to open file!");
         fwrite($myFile, $this->modelMaker($tableName, $tableFields));
         fclose($myFile);
@@ -81,7 +85,7 @@ class $className extends Model
      *     type=\"$type[0]\",
      *     format=\"$type[1]\",
      *     title=\"$property\",
-     *     example=$example,
+     *     example=\"$example\",
      *     description=\"$property\",
      * )
      *
