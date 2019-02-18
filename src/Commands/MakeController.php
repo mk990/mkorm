@@ -86,7 +86,7 @@ class {$className}Controller extends BaseController
      *   @OA\Response(
      *     response=200,
      *     description=\"Success\",
-     *     @OA\JsonContent(ref=\"#/components/schemas/$modelName\"),
+     *     @OA\JsonContent(ref=\"#/components/schemas/$className\"),
      *   ),
      *   @OA\Response(
      *     response=400,
@@ -122,7 +122,7 @@ class {$className}Controller extends BaseController
      *   @OA\Response(
      *     response=\"200\",
      *     description=\"success\",
-     *     @OA\JsonContent(ref=\"#/components/schemas/$modelName\"),
+     *     @OA\JsonContent(ref=\"#/components/schemas/$className\"),
      *   ),
      *   @OA\Response(
      *     response=400,
@@ -168,7 +168,7 @@ class {$className}Controller extends BaseController
      *   @OA\Response(
      *     response=\"200\",
      *     description=\"Success\",
-     *     @OA\JsonContent(ref=\"#/components/schemas/$modelName\"),
+     *     @OA\JsonContent(ref=\"#/components/schemas/$className\"),
      *   ),
      *   @OA\Response(
      *     response=400,
@@ -203,7 +203,7 @@ class {$className}Controller extends BaseController
      *   @OA\Response(
      *     response=\"200\",
      *     description=\"Success\",
-     *     @OA\JsonContent(ref=\"#/components/schemas/$modelName\"),
+     *     @OA\JsonContent(ref=\"#/components/schemas/$className\"),
      *   ),
      *   @OA\Response(
      *     response=400,
