@@ -46,7 +46,7 @@ class MakeController extends MakeModel
 
     public function controllerMaker($tableName, $tableFields)
     {
-        $className = ucfirst($tableName);
+        $className = Utils::camelize($tableName);
         $className = rtrim($className, 's');
         $date = date('Y-m-d H:i:s');
         $controller = "<?php

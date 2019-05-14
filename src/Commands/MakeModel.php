@@ -43,8 +43,8 @@ class MakeModel extends Command
 
     public function modelMaker($tableName, $tableFields)
     {
-        $className = ucfirst($tableName);
-        $modelName = ucfirst(rtrim($tableName, 's'));
+        $className = Utils::camelize($tableName);
+        $modelName = rtrim($className, 's');
         $getterSetter = "";
         $date = date('Y-m-d H:i:s');
         $model = "<?php

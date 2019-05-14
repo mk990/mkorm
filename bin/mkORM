@@ -1,17 +1,20 @@
 #!/usr/bin/env php
 <?php
 
-//require_once __DIR__ . '/../vendor/autoload.php';
-//(\Dotenv\Dotenv::create(__DIR__ . '/../'))->overload();
-
 require_once 'vendor/autoload.php';
-(\Dotenv\Dotenv::create('.'))->overload();
 
+use Dotenv\Dotenv;
+use MkOrm\Commands\MakeAllController;
+use MkOrm\Commands\MakeAllModel;
+use MkOrm\Commands\MakeController;
+use MkOrm\Commands\MakeModel;
 use Symfony\Component\Console\Application;
 
+(Dotenv::create('.'))->overload();
+
 $app = new Application();
-$app->add(new \MkOrm\Commands\MakeModel());
-$app->add(new \MkOrm\Commands\MakeAllModel());
-$app->add(new \MkOrm\Commands\MakeController());
-$app->add(new \MkOrm\Commands\MakeAllController());
+$app->add(new MakeModel());
+$app->add(new MakeAllModel());
+$app->add(new MakeController());
+$app->add(new MakeAllController());
 $app->run();
