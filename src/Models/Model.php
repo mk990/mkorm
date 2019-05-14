@@ -460,7 +460,7 @@ class Model
                 if (!$result) {
                     return false;
                 }
-                error_log("\n\n >>>>> SQL LOG: \n" . $this->pdoSqlDebug($sql, $bindings) . "\n <<<<< THE END \n\n");
+//                error_log("\n\n >>>>> SQL LOG: \n" . $this->pdoSqlDebug($sql, $bindings) . "\n <<<<< THE END \n\n");
                 return $this->find($db->lastInsertId());
             } catch (\PDOException $e) {
                 error_log("\n\n >>>>> SQL LOG: \n" . $this->pdoSqlDebug($sql, $bindings) . "\n <<<<< THE END \n\n");
