@@ -21,9 +21,10 @@ class UserTest extends TestCase
 
     public function testThatWeCanGetFromTable()
     {
-        (\Dotenv\Dotenv::create(__DIR__ . '/../../'))->overload();
+        echo \MkOrm\Utils\Utils::deCamelize("OkNo");
+//        (\Dotenv\Dotenv::create(__DIR__ . '/../../'))->overload();
 
-        $user = new MkOrm\Test\TestClass\Users();
+//        $user = new MkOrm\Test\TestClass\Users();
 //        for ($i = 0; $i <= 50; $i++) {
 //            $user->setName("test$i");
 //            $user->setPassword("pass$i");
@@ -37,8 +38,8 @@ class UserTest extends TestCase
 //        $users = $user->paginate(1, 20, ['name' => 'ali']);
 
 //        $user->save();
-        $users = $user->findOneLike(['name'=>'al']);
+//        $users = $user->findOneLike(['name'=>'al']);
 //        echo json_encode(new \MkOrm\Test\TestClass\UsersResource($users));
-        echo var_export($users, true);
+//        echo var_export($users, true);
     }
 }

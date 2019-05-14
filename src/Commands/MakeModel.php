@@ -3,6 +3,7 @@
 namespace MkOrm\Commands;
 
 use MkOrm\Configs\Connection;
+use MkOrm\Utils\Utils;
 use PDO;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -29,7 +30,7 @@ class MakeModel extends Command
         $q->execute();
         $tableFields = $q->fetchAll(PDO::FETCH_ASSOC);
 
-        $className = ucfirst($tableName);
+        $className = Utils::camelize($tableName);
         if (file_exists("src/Models/$className.php")) {
             $output->writeln('file exists');
             return;

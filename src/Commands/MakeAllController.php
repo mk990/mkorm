@@ -3,6 +3,7 @@
 namespace MkOrm\Commands;
 
 use MkOrm\Configs\Connection;
+use MkOrm\Utils\Utils;
 use PDO;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -26,7 +27,7 @@ class MakeAllController extends MakeController
         $tables = $q->fetchAll(PDO::FETCH_ASSOC);
 
         foreach ($tables as $table) {
-            $tableName = $table['Tables_in_mytestdb'];
+            $tableName = $table['Tables_in_'.getenv('DB_DATABASE')];
             if ($table == 'migrations') {
                 continue;
             }
@@ -35,7 +36,7 @@ class MakeAllController extends MakeController
             $q->execute();
             $tableFields = $q->fetchAll(PDO::FETCH_ASSOC);
 
-            $className = ucfirst($tableName);
+            $className = Utils::camelize($tableName);
             $className = rtrim($className,'s');
             if(file_exists("src/Controllers/{$className}Controller.php"))
                 continue;

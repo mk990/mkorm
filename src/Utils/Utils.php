@@ -20,6 +20,6 @@ class Utils
     {
         $words = explode('_', $word);
         $words = array_map('ucfirst', $words);
-        return lcfirst(str_replace('_', '', implode('_', $words)));
+        return ucfirst(str_replace('_', '', implode('_', $words)));
     }
 }

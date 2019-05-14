@@ -3,6 +3,7 @@
 namespace MkOrm\Commands;
 
 use MkOrm\Configs\Connection;
+use MkOrm\Utils\Utils;
 use PDO;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -28,11 +29,11 @@ class MakeController extends MakeModel
         $q->execute();
         $tableFields = $q->fetchAll(PDO::FETCH_ASSOC);
 
-        if(!is_dir('src/Controllers')){
-            mkdir('src/Controllers',0755,true);
+        if (!is_dir('src/Controllers')) {
+            mkdir('src/Controllers', 0755, true);
         }
-        $className = ucfirst($tableName);
-        $className = rtrim($className,'s');
+        $className = Utils::camelize($tableName);
+        $className = rtrim($className, 's');
         if (file_exists("src/Controllers/{$className}Controller.php")) {
             $output->writeln('file exists');
             return;
@@ -46,7 +47,7 @@ class MakeController extends MakeModel
     public function controllerMaker($tableName, $tableFields)
     {
         $className = ucfirst($tableName);
-        $className = rtrim($className,'s');
+        $className = rtrim($className, 's');
         $date = date('Y-m-d H:i:s');
         $controller = "<?php
 /**
@@ -140,7 +141,7 @@ class {$className}Controller extends BaseController
         $body = '';
         foreach ($tableFields as $tableField) {
             $property = $tableField['Field'];
-            if (in_array($property,['id', 'created_at', 'updated_at']))
+            if (in_array($property, ['id', 'created_at', 'updated_at']))
                 continue;
             $example = $this->exampleMaker($tableField['Field']);
             $type = $this->oaVarType($tableField['Type']);

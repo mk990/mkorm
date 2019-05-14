@@ -3,6 +3,7 @@
 namespace MkOrm\Commands;
 
 use MkOrm\Configs\Connection;
+use MkOrm\Utils\Utils;
 use PDO;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -25,7 +26,7 @@ class MakeAllModel extends MakeModel
         $tables = $q->fetchAll(PDO::FETCH_ASSOC);
 
         foreach ($tables as $table) {
-            $tableName = $table['Tables_in_mytestdb'];
+            $tableName = $table['Tables_in_' . getenv('DB_DATABASE')];
             if ($table == 'migrations') {
                 continue;
             }
@@ -34,8 +35,8 @@ class MakeAllModel extends MakeModel
             $q->execute();
             $tableFields = $q->fetchAll(PDO::FETCH_ASSOC);
 
-            $className = ucfirst($tableName);
-            if(file_exists("src/Models/$className.php"))
+            $className = Utils::camelize($tableName);
+            if (file_exists("src/Models/$className.php"))
                 continue;
             $myFile = fopen("src/Models/$className.php", "w") or die("Unable to open file!");
             fwrite($myFile, $this->modelMaker($tableName, $tableFields));
