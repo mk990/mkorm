@@ -47,7 +47,9 @@ class MakeController extends MakeModel
     public function controllerMaker($tableName, $tableFields)
     {
         $className = Utils::camelize($tableName);
-        $className = rtrim($className, 's');
+        $modelName = rtrim($className, 's');
+        $routeName = lcfirst(Utils::camelize($modelName));
+
         $date = date('Y-m-d H:i:s');
         $controller = "<?php
 /**
@@ -61,10 +63,9 @@ use Slim\Http\Request;
 use Slim\Http\Response;
 use OpenApi\Annotations as OA;
 
-class {$className}Controller extends BaseController
+class {$modelName}Controller extends BaseController
 {";
-        $modelName = trim($className, 's');
-        $routeName = $this->camelize($modelName);
+
         $getAll = "
     //======= GET ALL =========
 
@@ -72,9 +73,9 @@ class {$className}Controller extends BaseController
      * @OA\GET(
      *   path=\"/$routeName\",
      *   tags={\"$modelName\"},
-     *   summary=\"get all $className\",
-     *   description=\"list of all $className\",
-     *   operationId=\"getAll$className\",
+     *   summary=\"get all $modelName\",
+     *   description=\"list of all $modelName\",
+     *   operationId=\"getAll$modelName\",
      *   @OA\Parameter(
      *     name=\"page\",
      *     in=\"query\",

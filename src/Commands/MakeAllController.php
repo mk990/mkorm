@@ -27,8 +27,9 @@ class MakeAllController extends MakeController
         $tables = $q->fetchAll(PDO::FETCH_ASSOC);
 
         foreach ($tables as $table) {
-            $tableName = $table['Tables_in_'.getenv('DB_DATABASE')];
-            if ($table == 'migrations') {
+            $tableName = $table['Tables_in_' . getenv('DB_DATABASE')];
+
+            if ($tableName == 'migrations') {
                 continue;
             }
 
@@ -37,8 +38,8 @@ class MakeAllController extends MakeController
             $tableFields = $q->fetchAll(PDO::FETCH_ASSOC);
 
             $className = Utils::camelize($tableName);
-            $className = rtrim($className,'s');
-            if(file_exists("src/Controllers/{$className}Controller.php"))
+            $className = rtrim($className, 's');
+            if (file_exists("src/Controllers/{$className}Controller.php"))
                 continue;
             $myFile = fopen("src/Controllers/{$className}Controller.php", "w") or die("Unable to open file!");
             fwrite($myFile, $this->controllerMaker($tableName, $tableFields));

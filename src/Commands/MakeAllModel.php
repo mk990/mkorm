@@ -27,7 +27,7 @@ class MakeAllModel extends MakeModel
 
         foreach ($tables as $table) {
             $tableName = $table['Tables_in_' . getenv('DB_DATABASE')];
-            if ($table == 'migrations') {
+            if ($tableName == 'migrations') {
                 continue;
             }
 
