@@ -56,8 +56,8 @@ class MakeModel extends Command
 namespace App\Models;
 
 use MkOrm\Models\Model;
-use OpenApi\Annotations as OA;        
-      
+use OpenApi\Annotations as OA;
+
 /**
  * Class $className
  *
@@ -66,7 +66,7 @@ use OpenApi\Annotations as OA;
  *     title=\"$modelName model\",
  * )
  */
-class $className extends Model 
+class $className extends Model
 {";
         $head = '';
         $body = '';
@@ -76,6 +76,7 @@ class $className extends Model
             $property = $tableField['Field'];
             $example = $this->exampleMaker($tableField['Field']);
             $type = $this->oaVarType($tableField['Type']);
+            $phpType = $tableField['Type'];
             $uProperty = strtoupper($tableField['Field']);
             $head .= "
     const $uProperty = \"$property\";";
@@ -96,16 +97,22 @@ class $className extends Model
 ";
 
             $getterSetter .= "
-    public function get$methodName()
+    /**
+     * @return $phpType
+     */
+    public function get$methodName(): $phpType
     {
         return \$this->$propertyName;
     }
-            
-    public function set$methodName(\$$propertyName)
+
+    /**
+     * @param $phpType \$$propertyName
+     */
+    public function set$methodName($phpType \$$propertyName): void
     {
         \$this->$propertyName = \$$propertyName;
     }
-            ";
+";
         }
 
         $model .= "
@@ -162,6 +169,38 @@ $getterSetter
                 break;
             default:
                 $type = ["string", ""];
+        }
+        return $type;
+    }
+
+    protected function phpVarType($mysqlType)
+    {
+        $mysqlType = trim($mysqlType, "()0123456789");;
+
+        switch ($mysqlType) {
+            case 'int':
+                $type = 'int';
+                break;
+            case 'bigint':
+                $type = 'int';
+                break;
+            case 'timestamp':
+                $type = "string";
+                break;
+            case 'tinyint':
+                $type = "bool";
+                break;
+            case 'float':
+                $type = "float";
+                break;
+            case 'double':
+                $type = "float";
+                break;
+            case 'decimal':
+                $type = "float";
+                break;
+            default:
+                $type = "string";
         }
         return $type;
     }

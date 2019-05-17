@@ -19,7 +19,7 @@ class Resource
 
     protected function links($meta, $uri = '')
     {
-        $link = $this->data[0]['type'];
+        $link = rtrim($this->getName(), 's');
         $first = "$uri/$link";
 
         $path = $first . 'page=' . $meta['current_page'];
@@ -55,7 +55,7 @@ class Resource
 
     protected function meta($meta, $uri = "")
     {
-        $link = $this->data[0]['type'];
+        $link = rtrim($this->getName(), 's');
         $first = $uri . "/$link";
         $path = $first . 'page=' . $meta['current_page'];
         if ($meta['current_page'] == 1) {
