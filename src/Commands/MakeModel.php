@@ -76,7 +76,7 @@ class $className extends Model
             $property = $tableField['Field'];
             $example = $this->exampleMaker($tableField['Field']);
             $type = $this->oaVarType($tableField['Type']);
-            $phpType = $tableField['Type'];
+            $phpType = $this->phpVarType($tableField['Type']);
             $uProperty = strtoupper($tableField['Field']);
             $head .= "
     const $uProperty = \"$property\";";
