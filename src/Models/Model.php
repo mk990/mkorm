@@ -436,7 +436,10 @@ class Model
         foreach ($tableFields as $tableField) {
             $getterName = 'get' . ucfirst(Utils::camelize($tableField));
             $data = $this->$getterName();
-            if (!empty($data)) {
+            if ($data !== null) {
+                if ($data === false)
+                    $data = 0;
+
                 if ($tableField !== 'updated_at') {
                     $bindings[':' . $tableField] = $data;
                 }
