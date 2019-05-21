@@ -50,7 +50,7 @@ class MakeAllResource extends MakeResource
                 $output->writeln("{$className}Resource.php file exists");
             } else {
                 $myFile = fopen("src/Resource/{$className}Resource.php", "w") or die("Unable to open file!");
-                fwrite($myFile, $this->resourcesMaker($tableName, $tableFields));
+                fwrite($myFile, $this->resourcesMaker($tableName));
                 fclose($myFile);
             }
         }
