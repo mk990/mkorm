@@ -546,7 +546,7 @@ class Model
                 }
             }
         }
-
+        return false;
     }
 
     public function paginate(int $page = 1, int $limit = 20, $options = [])
