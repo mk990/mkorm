@@ -514,7 +514,7 @@ class Model
                 }
                 return true;
             } catch (PDOException $e) {
-                error_log("\n\n >>>>> SQL LOG: \n" . $this->pdoSqlDebug($sql, $input) . "\n <<<<< THE END \n\n");
+                error_log("\n\n >>>>> SQL LOG: \n" . $this->pdoSqlDebug($sql, ['?', $id]) . "\n <<<<< THE END \n\n");
                 error_log("\n\n >>>>> PDO ERROR: \n" . var_export($e->getMessage(), true) . "\n <<<<< THE END \n\n");
                 return false;
             }
@@ -540,7 +540,7 @@ class Model
                     }
                     return true;
                 } catch (PDOException $e) {
-                    error_log("\n\n >>>>> SQL LOG: \n" . $this->pdoSqlDebug($sql, ['?', $id]) . "\n <<<<< THE END \n\n");
+                    error_log("\n\n >>>>> SQL LOG: \n" . $this->pdoSqlDebug($sql, $input) . "\n <<<<< THE END \n\n");
                     error_log("\n\n >>>>> PDO ERROR: \n" . var_export($e->getMessage(), true) . "\n <<<<< THE END \n\n");
                     return false;
                 }
