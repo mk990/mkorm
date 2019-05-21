@@ -31,11 +31,10 @@ class MakeResource extends Command
         $tableFields = $q->fetchAll(PDO::FETCH_ASSOC);
 
         $className = Utils::camelize($tableName);
-        $modelName=rtrim($className,'s');
+        $modelName = rtrim($className, 's');
         if (file_exists("src/Resource/{$modelName}Resource.php")) {
             $output->writeln("{$modelName}Resource.php file exists");
-        }
-        else{
+        } else {
             $myFile = fopen("src/Resource/{$modelName}Resource.php", "w") or die("Unable to open file!");
             fwrite($myFile, $this->resourceMaker($tableName, $tableFields));
             fclose($myFile);
@@ -46,7 +45,7 @@ class MakeResource extends Command
             return;
         }
         $myFile = fopen("src/Resource/{$className}Resource.php", "w") or die("Unable to open file!");
-        fwrite($myFile, $this->resourcesMaker($tableName, $tableFields));
+        fwrite($myFile, $this->resourcesMaker($tableName));
         fclose($myFile);
 
         $output->writeln('All done');
@@ -84,10 +83,12 @@ class {$modelName}Resource extends Resource
             \"attributes\"    => [";
         $body = '';
         foreach ($tableFields as $tableField) {
+            if ($tableField['Field'] == 'id')
+                continue;
             $key = "$className::" . strtoupper($tableField['Field']);
             $value = "\${$lcfModelName}->get" . Utils::camelize($tableField['Field']) . '()';
             $body .= "
-            $key => $value,";
+                $key => $value,";
         }
 
         $model .= "$body
@@ -103,11 +104,10 @@ class {$modelName}Resource extends Resource
         return $model;
     }
 
-    public function resourcesMaker($tableName, $tableFields)
+    public function resourcesMaker($tableName)
     {
         $className = Utils::camelize($tableName);
         $modelName = rtrim($className, 's');
-        $lcfModelName = lcfirst(rtrim($className, 's'));
 
         $date = date('Y-m-d H:i:s');
         $model = "<?php
