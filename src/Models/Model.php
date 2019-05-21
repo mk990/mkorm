@@ -12,6 +12,7 @@ namespace MkOrm\Models;
 use MkOrm\Configs\Connection;
 use MkOrm\Utils\Utils;
 use PDO;
+use PDOException;
 
 class Model
 {
@@ -45,7 +46,7 @@ class Model
                 $data[] = $class;
             }
             return $data;
-        } catch (\PDOException $e) {
+        } catch (PDOException $e) {
             error_log("\n\n >>>>> SQL LOG: \n" . $this->pdoSqlDebug($sql, []) . "\n <<<<< THE END \n\n");
             error_log("\n\n >>>>> PDO ERROR: \n" . var_export($e->getMessage(), true) . "\n <<<<< THE END \n\n");
             return false;
@@ -90,7 +91,7 @@ class Model
                     $data[] = $class;
                 }
                 return $data;
-            } catch (\PDOException $e) {
+            } catch (PDOException $e) {
                 error_log("\n\n >>>>> SQL LOG: \n" . $this->pdoSqlDebug($sql, [$str => $dataStr]) . "\n <<<<< THE END \n\n");
                 error_log("\n\n >>>>> PDO ERROR: \n" . var_export($e->getMessage(), true) . "\n <<<<< THE END \n\n");
                 return false;
@@ -117,7 +118,7 @@ class Model
             }
 
             return $this;
-        } catch (\PDOException $e) {
+        } catch (PDOException $e) {
             error_log("\n\n >>>>> SQL LOG: \n" . $this->pdoSqlDebug($sql, ['?' => $input]) . "\n <<<<< THE END \n\n");
             error_log("\n\n >>>>> PDO ERROR: \n" . var_export($e->getMessage(), true) . "\n <<<<< THE END \n\n");
             return false;
@@ -165,7 +166,7 @@ class Model
                 $data[] = $class;
             }
             return $data;
-        } catch (\PDOException $e) {
+        } catch (PDOException $e) {
             error_log("\n\n >>>>> SQL LOG: \n" . $this->pdoSqlDebug($sql, $input) . "\n <<<<< THE END \n\n");
             error_log("\n\n >>>>> PDO ERROR: \n" . var_export($e->getMessage(), true) . "\n <<<<< THE END \n\n");
             return false;
@@ -216,7 +217,7 @@ class Model
             }
             error_log("\n\n >>>>> SQL LOG: \n" . $this->pdoSqlDebug($sql, $input) . "\n <<<<< THE END \n\n");
             return $data;
-        } catch (\PDOException $e) {
+        } catch (PDOException $e) {
             error_log("\n\n >>>>> SQL LOG: \n" . $this->pdoSqlDebug($sql, $input) . "\n <<<<< THE END \n\n");
             error_log("\n\n >>>>> PDO ERROR: \n" . var_export($e->getMessage(), true) . "\n <<<<< THE END \n\n");
             return false;
@@ -263,7 +264,7 @@ class Model
             }
 
             return $this;
-        } catch (\PDOException $e) {
+        } catch (PDOException $e) {
             error_log("\n\n >>>>> SQL LOG: \n" . $this->pdoSqlDebug($sql, $input) . "\n <<<<< THE END \n\n");
             error_log("\n\n >>>>> PDO ERROR: \n" . var_export($e->getMessage(), true) . "\n <<<<< THE END \n\n");
             return false;
@@ -309,7 +310,7 @@ class Model
                 $this->$setterName($result->$tableField);
             }
             return $this;
-        } catch (\PDOException $e) {
+        } catch (PDOException $e) {
             error_log("\n\n >>>>> SQL LOG: \n" . $this->pdoSqlDebug($sql, $input) . "\n <<<<< THE END \n\n");
             error_log("\n\n >>>>> PDO ERROR: \n" . var_export($e->getMessage(), true) . "\n <<<<< THE END \n\n");
             return false;
@@ -344,7 +345,7 @@ class Model
             $stmt->execute($input);
             $result = $stmt->fetch(PDO::FETCH_OBJ);
             return $result->cnt;
-        } catch (\PDOException $e) {
+        } catch (PDOException $e) {
             error_log("\n\n >>>>> SQL LOG: \n" . $this->pdoSqlDebug($sql, $input) . "\n <<<<< THE END \n\n");
             error_log("\n\n >>>>> PDO ERROR: \n" . var_export($e->getMessage(), true) . "\n <<<<< THE END \n\n");
             return false;
@@ -378,7 +379,7 @@ class Model
             $stmt->execute($input);
             $result = $stmt->fetch(PDO::FETCH_OBJ);
             return $result->sum_data;
-        } catch (\PDOException $e) {
+        } catch (PDOException $e) {
             error_log("\n\n >>>>> SQL LOG: \n" . $this->pdoSqlDebug($sql, $input) . "\n <<<<< THE END \n\n");
             error_log("\n\n >>>>> PDO ERROR: \n" . var_export($e->getMessage(), true) . "\n <<<<< THE END \n\n");
             return false;
@@ -412,7 +413,7 @@ class Model
             $stmt->execute($input);
             $result = $stmt->fetch(PDO::FETCH_OBJ);
             return $result->avg_data;
-        } catch (\PDOException $e) {
+        } catch (PDOException $e) {
             error_log("\n\n >>>>> SQL LOG: \n" . $this->pdoSqlDebug($sql, $input) . "\n <<<<< THE END \n\n");
             error_log("\n\n >>>>> PDO ERROR: \n" . var_export($e->getMessage(), true) . "\n <<<<< THE END \n\n");
             return false;
@@ -465,7 +466,7 @@ class Model
                 }
 //                error_log("\n\n >>>>> SQL LOG: \n" . $this->pdoSqlDebug($sql, $bindings) . "\n <<<<< THE END \n\n");
                 return $this->find($db->lastInsertId());
-            } catch (\PDOException $e) {
+            } catch (PDOException $e) {
                 error_log("\n\n >>>>> SQL LOG: \n" . $this->pdoSqlDebug($sql, $bindings) . "\n <<<<< THE END \n\n");
                 error_log("\n\n >>>>> PDO ERROR: \n" . var_export($e->getMessage(), true) . "\n <<<<< THE END \n\n");
                 return false;
@@ -483,7 +484,7 @@ class Model
                     return false;
                 }
                 return $this->find($this->getId());
-            } catch (\PDOException $e) {
+            } catch (PDOException $e) {
                 error_log("\n\n >>>>> SQL LOG: \n" . $this->pdoSqlDebug($sql, $bindings) . "\n <<<<< THE END \n\n");
                 error_log("\n\n >>>>> PDO ERROR: \n" . var_export($e->getMessage(), true) . "\n <<<<< THE END \n\n");
                 return false;
@@ -491,31 +492,61 @@ class Model
         }
     }
 
-    public function delete()
+    public function delete($input = null)
     {
         $db = (new Connection())->connect();
 
         $tableName = $this->getTableName();
 
-        // if empty id
-        $id = $this->getId();
-        if (empty($id)) {
-            return false;
-        }
-        $sql = "DELETE FROM `$tableName` WHERE id = ?";
-        try {
-            $stmt = $db->prepare($sql);
-            $stmt->bindParam(1, $id, PDO::PARAM_INT);
-            $result = $stmt->execute();
-            if (!$result) {
+        if ($input == null) {
+            $id = $this->getId();
+            // if empty id
+            if (empty($id)) {
                 return false;
             }
-            return true;
-        } catch (\PDOException $e) {
-            error_log("\n\n >>>>> SQL LOG: \n" . $this->pdoSqlDebug($sql, ['?', $id]) . "\n <<<<< THE END \n\n");
-            error_log("\n\n >>>>> PDO ERROR: \n" . var_export($e->getMessage(), true) . "\n <<<<< THE END \n\n");
-            return false;
+            $sql = "DELETE FROM `$tableName` WHERE id = ?";
+            try {
+                $stmt = $db->prepare($sql);
+                $stmt->bindParam(1, $id, PDO::PARAM_INT);
+                $result = $stmt->execute();
+                if (!$result) {
+                    return false;
+                }
+                return true;
+            } catch (PDOException $e) {
+                error_log("\n\n >>>>> SQL LOG: \n" . $this->pdoSqlDebug($sql, ['?', $id]) . "\n <<<<< THE END \n\n");
+                error_log("\n\n >>>>> PDO ERROR: \n" . var_export($e->getMessage(), true) . "\n <<<<< THE END \n\n");
+                return false;
+            }
         }
+        if (is_array($input)) {
+            if (!empty($input)) {
+                $str = ' WHERE ';
+                foreach ($input as $key => $value) {
+
+                    $str .= " $key = :$key AND ";
+
+                    $input[':' . $key] = $value;
+                    unset($input[$key]);
+                }
+                $str = rtrim($str, 'AND ');
+
+                $sql = "DELETE FROM `$tableName` $str";
+                try {
+                    $stmt = $db->prepare($sql);
+                    $result = $stmt->execute($input);
+                    if (!$result) {
+                        return false;
+                    }
+                    return true;
+                } catch (PDOException $e) {
+                    error_log("\n\n >>>>> SQL LOG: \n" . $this->pdoSqlDebug($sql, ['?', $id]) . "\n <<<<< THE END \n\n");
+                    error_log("\n\n >>>>> PDO ERROR: \n" . var_export($e->getMessage(), true) . "\n <<<<< THE END \n\n");
+                    return false;
+                }
+            }
+        }
+
     }
 
     public function paginate(int $page = 1, int $limit = 20, $options = [])
@@ -582,7 +613,7 @@ class Model
                         "total"        => $count,
                     ]
                 ];
-        } catch (\PDOException $e) {
+        } catch (PDOException $e) {
             error_log("\n\n >>>>> SQL LOG: \n" . $this->pdoSqlDebug($sql, $bind) . "\n <<<<< THE END \n\n");
             error_log("\n\n >>>>> PDO ERROR: \n" . var_export($e->getMessage(), true) . "\n <<<<< THE END \n\n");
             return false;
