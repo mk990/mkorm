@@ -3,3 +3,6 @@
 /composer.lock
 /.env
 /tests
+/.phpunit.result.cache
+/bin/
+!/bin/mkORM

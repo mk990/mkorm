@@ -2,7 +2,7 @@
 
 namespace MkOrm\Commands;
 
-use MkOrm\Configs\Connection;
+use MkOrm\Configs\DBConnect;
 use MkOrm\Utils\Utils;
 use PDO;
 use Symfony\Component\Console\Input\InputArgument;
@@ -20,7 +20,7 @@ class MakeAllController extends MakeController
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $db = (new Connection())->connect();
+        $db = new DBConnect();
 
         $q = $db->prepare("SHOW TABLES;");
         $q->execute();
@@ -41,6 +41,9 @@ class MakeAllController extends MakeController
             $className = rtrim($className, 's');
             if (file_exists("src/Controllers/{$className}Controller.php"))
                 continue;
+            if (!is_dir('src/Controllers')) {
+                mkdir('src/Controllers', 0755, true);
+            }
             $myFile = fopen("src/Controllers/{$className}Controller.php", "w") or die("Unable to open file!");
             fwrite($myFile, $this->controllerMaker($tableName, $tableFields));
             fclose($myFile);

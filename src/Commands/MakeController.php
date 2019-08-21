@@ -2,7 +2,7 @@
 
 namespace MkOrm\Commands;
 
-use MkOrm\Configs\Connection;
+use MkOrm\Configs\DBConnect;
 use MkOrm\Utils\Utils;
 use PDO;
 use Symfony\Component\Console\Input\InputArgument;
@@ -21,7 +21,7 @@ class MakeController extends MakeModel
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $db = (new Connection())->connect();
+        $db = new DBConnect();
 
         $tableName = $input->getArgument('controller');
 
@@ -32,6 +32,7 @@ class MakeController extends MakeModel
         if (!is_dir('src/Controllers')) {
             mkdir('src/Controllers', 0755, true);
         }
+
         $className = Utils::camelize($tableName);
         $className = rtrim($className, 's');
         if (file_exists("src/Controllers/{$className}Controller.php")) {
@@ -59,8 +60,8 @@ class MakeController extends MakeModel
 
 namespace App\Controllers;
 
-use Slim\Http\Request;
-use Slim\Http\Response;
+use Slim\Psr7\Request;
+use Slim\Psr7\Response;
 use OpenApi\Annotations as OA;
 
 class {$modelName}Controller extends BaseController
@@ -97,7 +98,11 @@ class {$modelName}Controller extends BaseController
      *   ),security={{\"api_key\": {}}}
      * )
      */
-
+    /**
+     * @param Request \$request
+     * @param Response \$response
+     * @param array \$args
+     */
     public function getAll(Request \$request, Response \$response, array \$args)
     {
         // TODO: Implement getAll() method.
@@ -133,7 +138,11 @@ class {$modelName}Controller extends BaseController
      *   ),security={{\"api_key\": {}}}
      * )
      */
-
+    /**
+     * @param Request \$request
+     * @param Response \$response
+     * @param array \$args
+     */
     public function getOne(Request \$request, Response \$response, array \$args)
     {
         // TODO: Implement getOne() method.
@@ -185,7 +194,11 @@ class {$modelName}Controller extends BaseController
      *   ),security={{\"api_key\": {}}}
      * )
      */
-
+    /**
+     * @param Request \$request
+     * @param Response \$response
+     * @param array \$args
+     */
     public function create(Request \$request, Response \$response, array \$args)
     {
         // TODO: Implement create() method.
@@ -228,7 +241,11 @@ class {$modelName}Controller extends BaseController
      *   ),security={{\"api_key\": {}}}
      * )
      */
-
+    /**
+     * @param Request \$request
+     * @param Response \$response
+     * @param array \$args
+     */
     public function update(Request \$request, Response \$response, array \$args)
     {
         // TODO: Implement update() method.
@@ -266,7 +283,11 @@ class {$modelName}Controller extends BaseController
      *   ),security={{\"api_key\": {}}}
      * )
      */
-
+    /**
+     * @param Request \$request
+     * @param Response \$response
+     * @param array \$args
+     */
     public function delete(Request \$request, Response \$response, array \$args)
     {
         // TODO: Implement delete() method.

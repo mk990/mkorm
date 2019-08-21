@@ -9,14 +9,15 @@
 namespace MkOrm\DB;
 
 
-use MkOrm\Configs\Connection;
+use MkOrm\Configs\DBConnect;
 use PDO;
 
+//Todo: trying to make query builder
 class Tools
 {
     public static function query(string $query, array $data = [])
     {
-        $db = (new Connection())->connect();
+        $db = new DBConnect();
         $stmt = $db->prepare($query);
         $stmt->execute($data);
         $number_of_rows = $stmt->rowCount();

@@ -2,7 +2,7 @@
 
 namespace MkOrm\Commands;
 
-use MkOrm\Configs\Connection;
+use MkOrm\Configs\DBConnect;
 use MkOrm\Utils\Utils;
 use PDO;
 use Symfony\Component\Console\Input\InputInterface;
@@ -19,7 +19,7 @@ class MakeAllModel extends MakeModel
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $db = (new Connection())->connect();
+        $db = new DBConnect();
 
         $q = $db->prepare("SHOW TABLES;");
         $q->execute();
@@ -38,6 +38,9 @@ class MakeAllModel extends MakeModel
             $className = Utils::camelize($tableName);
             if (file_exists("src/Models/$className.php"))
                 continue;
+            if (!is_dir('src/Models')) {
+                mkdir('src/Models', 0755, true);
+            }
             $myFile = fopen("src/Models/$className.php", "w") or die("Unable to open file!");
             fwrite($myFile, $this->modelMaker($tableName, $tableFields));
             fclose($myFile);

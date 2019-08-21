@@ -2,7 +2,7 @@
 
 namespace MkOrm\Commands;
 
-use MkOrm\Configs\Connection;
+use MkOrm\Configs\DBConnect;
 use MkOrm\Utils\Utils;
 use PDO;
 use Symfony\Component\Console\Command\Command;
@@ -22,7 +22,7 @@ class MakeModel extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $db = (new Connection())->connect();
+        $db = new DBConnect();
 
         $tableName = $input->getArgument('table');
 
@@ -35,6 +35,11 @@ class MakeModel extends Command
             $output->writeln('file exists');
             return;
         }
+
+        if (!is_dir('src/Models')) {
+            mkdir('src/Models', 0755, true);
+        }
+
         $myFile = fopen("src/Models/$className.php", "w") or die("Unable to open file!");
         fwrite($myFile, $this->modelMaker($tableName, $tableFields));
         fclose($myFile);
@@ -55,7 +60,7 @@ class MakeModel extends Command
 
 namespace App\Models;
 
-use MkOrm\Models\Model;
+use MkOrm\Model\Model;
 use OpenApi\Annotations as OA;
 
 /**
@@ -122,11 +127,6 @@ $getterSetter
 }
 ";
         return $model;
-    }
-
-    protected function deCamelize($word)
-    {
-        return strtolower(preg_replace('/(?<!^)[A-Z]/', '_$0', $word));
     }
 
     protected function camelize($word)
@@ -221,6 +221,9 @@ $getterSetter
                 $value = "example@example.com";
                 break;
             case 'state':
+                $value = '0';
+                break;
+            case 'stateus':
                 $value = '0';
                 break;
             case 'ip':

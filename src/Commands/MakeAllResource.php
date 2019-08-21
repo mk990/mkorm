@@ -2,7 +2,7 @@
 
 namespace MkOrm\Commands;
 
-use MkOrm\Configs\Connection;
+use MkOrm\Configs\DBConnect;
 use MkOrm\Utils\Utils;
 use PDO;
 use Symfony\Component\Console\Input\InputInterface;
@@ -19,7 +19,7 @@ class MakeAllResource extends MakeResource
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $db = (new Connection())->connect();
+        $db = new DBConnect();
 
         $q = $db->prepare("SHOW TABLES;");
         $q->execute();
@@ -38,18 +38,24 @@ class MakeAllResource extends MakeResource
             $className = Utils::camelize($tableName);
             $modelName = rtrim($className, 's');
 
-            if (file_exists("src/Resource/{$modelName}Resource.php")) {
+            if (file_exists("src/Resources/{$modelName}Resource.php")) {
                 $output->writeln("{$modelName}Resource.php file exists");
             } else {
-                $myFile = fopen("src/Resource/{$modelName}Resource.php", "w") or die("Unable to open file!");
+                if (!is_dir('src/Resources')) {
+                    mkdir('src/Resources', 0755, true);
+                }
+                $myFile = fopen("src/Resources/{$modelName}Resource.php", "w") or die("Unable to open file!");
                 fwrite($myFile, $this->resourceMaker($tableName, $tableFields));
                 fclose($myFile);
             }
 
-            if (file_exists("src/Resource/{$className}Resource.php")) {
+            if (file_exists("src/Resources/{$className}Resource.php")) {
                 $output->writeln("{$className}Resource.php file exists");
             } else {
-                $myFile = fopen("src/Resource/{$className}Resource.php", "w") or die("Unable to open file!");
+                if (!is_dir('src/Resources')) {
+                    mkdir('src/Resources', 0755, true);
+                }
+                $myFile = fopen("src/Resources/{$className}Resource.php", "w") or die("Unable to open file!");
                 fwrite($myFile, $this->resourcesMaker($tableName));
                 fclose($myFile);
             }
